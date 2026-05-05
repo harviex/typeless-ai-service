@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TaskerData sr="" dvi="1" tv="6.2.22">
+  <Profile sr="prof1" ve="2">
+    <cdate>1730000000000</cdate>
+    <edate>1730000000000</edate>
+    <id>1</id>
+    <mid0>30</mid0>
+    <nme>语音润色-浮动按钮</nme>
+    <Event sr="evt1" ve="2">
+      <code>2071191096</code>
+      <pri>0</pri>
+      <Bundle sr="bun1" ve="3">
+        <VFloatEmpty sr="par0" ve="3"/>
+        <VFloat sr="par1" ve="3">200</VFloat>
+        <VFloat sr="par2" ve="3">100</VFloat>
+        <VStr sr="par3" ve="3">麦克风</VStr>
+        <VStr sr="par4" ve="3">🎙️</VStr>
+        <VStr sr="par5" ve="3"/>
+        <VStr sr="par6" ve="3"/>
+        <VBool sr="par7" ve="3">true</VBool>
+        <Vlnt sr="par8" ve="3">0</Vlnt>
+        <Vlnt sr="par9" ve="3">1</Vlnt>
+        <Vlnt sr="par10" ve="3">0</Vlnt>
+        <Vlnt sr="par11" ve="3">0</Vlnt>
+        <Vlnt sr="par12" ve="3">0</Vlnt>
+        <Vlnt sr="par13" ve="3">0</Vlnt>
+        <Vlnt sr="par14" ve="3">0</Vlnt>
+        <Vlnt sr="par15" ve="3">0</Vlnt>
+        <Vlnt sr="par16" ve="3">0</Vlnt>
+        <Vlnt sr="par17" ve="3">0</Vlnt>
+        <Vlnt sr="par18" ve="3">0</Vlnt>
+        <Vlnt sr="par19" ve="3">0</Vlnt>
+        <Vlnt sr="par20" ve="3">0</Vlnt>
+        <Vlnt sr="par21" ve="3">0</Vlnt>
+        <Vlnt sr="par22" ve="3">0</Vlnt>
+        <Vlnt sr="par23" ve="3">0</Vlnt>
+      </Bundle>
+    </Event>
+  </Profile>
+  <Task sr="Task30" ve="4">
+    <cdate>1730000000000</cdate>
+    <edate>1730000000000</edate>
+    <id>30</id>
+    <nme>启动语音润色</nme>
+    <pri>100</pri>
+    <Action sr="act0" ve="7">
+      <code>30</code>
+      <lable>显示Toast：开始录音</lable>
+      <Bundle sr="bun0" ve="3">
+        <VStr sr="par0" ve="3">🎙️ 开始录音，请说话...</VStr>
+        <Vlnt sr="par1" ve="3">1</Vlnt>
+        <Vlnt sr="par2" ve="3">0</Vlnt>
+        <Vlnt sr="par3" ve="3">0</Vlnt>
+        <Vlnt sr="par4" ve="3">0</Vlnt>
+        <Vlnt sr="par5" ve="3">0</Vlnt>
+        <Vlnt sr="par6" ve="3">0</Vlnt>
+      </Bundle>
+    </Action>
+    <Action sr="act1" ve="7">
+      <code>478</code>
+      <lable>AutoInput点击麦克风</lable>
+      <Bundle sr="bun1" ve="3">
+        <VStr sr="par1" ve="3">com.sec.android.inputmethod</VStr>
+        <VStr sr="par2" ve="3">id/mic_btn</VStr>
+        <VStr sr="par3" ve="3"/>
+        <Vlnt sr="par4" ve="3">1</Vlnt>
+        <Vlnt sr="par5" ve="3">0</Vlnt>
+        <Vlnt sr="par6" ve="3">1</Vlnt>
+        <Vlnt sr="par7" ve="3">5</Vlnt>
+        <Vlnt sr="par8" ve="3">0</Vlnt>
+        <Vlnt sr="par9" ve="3">1</Vlnt>
+        <Vlnt sr="par10" ve="3">5</Vlnt>
+        <Vlnt sr="par11" ve="3">1</Vlnt>
+        <Vlnt sr="par12" ve="3">0</Vlnt>
+        <Vlnt sr="par13" ve="3">1</Vlnt>
+        <Vlnt sr="par14" ve="3">1</Vlnt>
+      </Bundle>
+    </Action>
+    <Action sr="act2" ve="7">
+      <code>30</code>
+      <lable>等待用户第二次点击</lable>
+      <Bundle sr="bun2" ve="3">
+        <VStr sr="par0" ve="3">等待完成...</VStr>
+        <Vlnt sr="par1" ve="3">1</Vlnt>
+        <Vlnt sr="par2" ve="3">0</Vlnt>
+        <Vlnt sr="par3" ve="3">0</Vlnt>
+        <Vlnt sr="par4" ve="3">0</Vlnt>
+        <Vlnt sr="par5" ve="3">0</Vlnt>
+        <Vlnt sr="par6" ve="3">0</Vlnt>
+      </Bundle>
+    </Action>
+  </Task>
+  <Task sr="Task31" ve="4">
+    <cdate>1730000000000</cdate>
+    <edate>1730000000000</edate>
+    <id>31</id>
+    <nme>处理润色</nme>
+    <pri>100</pri>
+    <Action sr="act0" ve="7">
+      <code>30</code>
+      <lable>显示Toast：正在润色...</lable>
+      <Bundle sr="bun0" ve="3">
+        <VStr sr="par0" ve="3">✨ 正在润色文字...</VStr>
+        <Vlnt sr="par1" ve="3">1</Vlnt>
+        <Vlnt sr="par2" ve="3">0</Vlnt>
+        <Vlnt sr="par3" ve="3">0</Vlnt>
+        <Vlnt sr="par4" ve="3">0</Vlnt>
+        <Vlnt sr="par5" ve="3">0</Vlnt>
+        <Vlnt sr="par6" ve="3">0</Vlnt>
+      </Bundle>
+    </Action>
+    <Action sr="act1" ve="7">
+      <code>478</code>
+      <lable>AutoInput点击完成按钮</lable>
+      <Bundle sr="bun1" ve="3">
+        <VStr sr="par1" ve="3">com.sec.android.inputmethod</VStr>
+        <VStr sr="par2" ve="3">id/done_btn</VStr>
+        <VStr sr="par3" ve="3"/>
+        <Vlnt sr="par4" ve="3">1</Vlnt>
+        <Vlnt sr="par5" ve="3">0</Vlnt>
+        <Vlnt sr="par6" ve="3">1</Vlnt>
+        <Vlnt sr="par7" ve="3">5</Vlnt>
+        <Vlnt sr="par8" ve="3">0</Vlnt>
+        <Vlnt sr="par9" ve="3">1</Vlnt>
+        <Vlnt sr="par10" ve="3">5</Vlnt>
+        <Vlnt sr="par11" ve="3">1</Vlnt>
+        <Vlnt sr="par12" ve="3">0</Vlnt>
+        <Vlnt sr="par13" ve="3">1</Vlnt>
+        <Vlnt sr="par14" ve="3">1</Vlnt>
+      </Bundle>
+    </Action>
+    <Action sr="act2" ve="7">
+      <code>20</code>
+      <lable>等待1秒</lable>
+      <Bundle sr="bun2" ve="3">
+        <Vlnt sr="par1" ve="3">1</Vlnt>
+      </Bundle>
+    </Action>
+    <Action sr="act3" ve="7">
+      <code>430</code>
+      <lable>读取剪贴板文字</lable>
+      <Bundle sr="bun3" ve="3">
+        <VStr sr="par1" ve="3">%original_text</VStr>
+      </Bundle>
+    </Action>
+    <Action sr="act4" ve="7">
+      <code>105</code>
+      <lable>HTTP POST到Vercel API</lable>
+      <Bundle sr="bun4" ve="3">
+        <VStr sr="par1" ve="3">POST</VStr>
+        <VStr sr="par2" ve="3">https://YOUR-VERCEL-APP.vercel.app/api/polish</VStr>
+        <VStr sr="par3" ve="3">{"text": "%original_text"}</VStr>
+        <VStr sr="par4" ve="3">Content-Type: application/json</VStr>
+        <VStr sr="par5" ve="3">%response</VStr>
+        <Vlnt sr="par6" ve="3">10</Vlnt>
+        <Vlnt sr="par7" ve="3">0</Vlnt>
+        <Vlnt sr="par8" ve="3">0</Vlnt>
+        <Vlnt sr="par9" ve="3">0</Vlnt>
+        <Vlnt sr="par10" ve="3">1</Vlnt>
+        <Vlnt sr="par11" ve="3">0</Vlnt>
+      </Bundle>
+    </Action>
+    <Action sr="act5" ve="7">
+      <code>123</code>
+      <lable>解析JSON响应</lable>
+      <Bundle sr="bun5" ve="3">
+        <VStr sr="par1" ve="3">%polished</VStr>
+        <VStr sr="par2" ve="3">%response</VStr>
+        <VStr sr="par3" ve="3">$.polished_text</VStr>
+      </Bundle>
+    </Action>
+    <Action sr="act6" ve="7">
+      <code>430</code>
+      <lable>写入剪贴板</lable>
+      <Bundle sr="bun6" ve="3">
+        <VStr sr="par1" ve="3">%polished</VStr>
+      </Bundle>
+    </Action>
+    <Action sr="act7" ve="7">
+      <code>30</code>
+      <lable>显示完成Toast</lable>
+      <Bundle sr="bun7" ve="3">
+        <VStr sr="par0" ve="3">✅ 润色完成！已复制到剪贴板</VStr>
+        <Vlnt sr="par1" ve="3">1</Vlnt>
+        <Vlnt sr="par2" ve="3">0</Vlnt>
+        <Vlnt sr="par3" ve="3">0</Vlnt>
+        <Vlnt sr="par4" ve="3">0</Vlnt>
+        <Vlnt sr="par5" ve="3">0</Vlnt>
+        <Vlnt sr="par6" ve="3">0</Vlnt>
+      </Bundle>
+    </Action>
+  </Task>
+  <Profile sr="prof2" ve="2">
+    <cdate>1730000000000</cdate>
+    <edate>1730000000000</edate>
+    <id>2</id>
+    <mid0>31</mid0>
+    <nme>第二次点击浮动按钮</nme>
+    <Event sr="evt2" ve="2">
+      <code>2071191096</code>
+      <pri>0</pri>
+      <Bundle sr="bun1" ve="3">
+        <VFloatEmpty sr="par0" ve="3"/>
+        <VFloat sr="par1" ve="3">200</VFloat>
+        <VFloat sr="par2" ve="3">150</VFloat>
+        <VStr sr="par3" ve="3">完成润色</VStr>
+        <VStr sr="par4" ve="3">✨</VStr>
+        <VStr sr="par5" ve="3"/>
+        <VBool sr="par7" ve="3">true</VBool>
+        <Vlnt sr="par8" ve="3">0</Vlnt>
+        <Vlnt sr="par9" ve="3">2</Vlnt>
+        <Vlnt sr="par10" ve="3">0</Vlnt>
+        <Vlnt sr="par11" ve="3">0</Vlnt>
+        <Vlnt sr="par12" ve="3">0</Vlnt>
+        <Vlnt sr="par13" ve="3">0</Vlnt>
+        <Vlnt sr="par14" ve="3">0</Vlnt>
+        <Vlnt sr="par15" ve="3">0</Vlnt>
+        <Vlnt sr="par16" ve="3">0</Vlnt>
+        <Vlnt sr="par17" ve="3">0</Vlnt>
+        <Vlnt sr="par18" ve="3">0</Vlnt>
+        <Vlnt sr="par19" ve="3">0</Vlnt>
+        <Vlnt sr="par20" ve="3">0</Vlnt>
+        <Vlnt sr="par21" ve="3">0</Vlnt>
+        <Vlnt sr="par22" ve="3">0</Vlnt>
+        <Vlnt sr="par23" ve="3">0</Vlnt>
+      </Bundle>
+    </Event>
+  </Profile>
+</TaskerData>
