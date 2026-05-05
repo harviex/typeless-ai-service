@@ -80,9 +80,9 @@ def polish_text():
         if not client.api_key:
             return jsonify({'error': 'OPENROUTER_API_KEY not configured'}), 500
         
-        # Call OpenRouter API
+        # Call OpenRouter API - 使用可用的免费模型
         response = client.chat.completions.create(
-            model="meta-llama/llama-3.3-8b-instruct:free",
+            model="meta-llama/llama-3.1-8b-instruct:free",  # 修正模型名称
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_text}
