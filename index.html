@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typeless AI 润色</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+            margin-bottom: 12px;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            display: none;
+        }
+        .result.show {
+            display: block;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            margin: 12px 0;
+        }
+        .loading.show {
+            display: block;
+        }
+        .copy-btn {
+            margin-top: 12px;
+            padding: 8px 16px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Typeless AI 润色</h1>
+        <p class="subtitle">语音输入或输入文字，AI自动润色</p>
+        
+        <textarea id="inputText" placeholder="输入要润色的文字，或点击下方按钮语音输入..."></textarea>
+        
+        <div class="button-group">
+            <button class="btn-secondary" onclick="startVoice()">🎤 语音输入</button>
+            <button class="btn-primary" onclick="polishText()">✨ 润色</button>
+        </div>
+        
+        <div class="loading" id="loading">⏳ 正在润色中...</div>
+        
+        <div class="result" id="result">
+            <strong>润色结果：</strong>
+            <div id="resultText"></div>
+            <button class="copy-btn" onclick="copyResult()">📋 复制结果</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://tvrlj2q0rc0vknpr.public.blob.vercel-storage.com/polish';
+        
+        // 语音输入
+        function startVoice() {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert('您的浏览器不支持语音识别，请使用Chrome浏览器');
+                return;
+            }
+            
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'zh-CN';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            
+            recognition.onresult = function(event) {
+                const text = event.results[0][0].transcript;
+                document.getElementById('inputText').value = text;
+            };
+            
+            recognition.onerror = function(event) {
+                alert('语音识别失败，请重试');
+            };
+            
+            recognition.start();
+        }
+        
+        // 润色文本
+        async function polishText() {
+            const inputText = document.getElementById('inputText').value.trim();
+            
+            if (!inputText) {
+                alert('请输入要润色的文字');
+                return;
+            }
+            
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('result').classList.remove('show');
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: inputText })
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('loading').classList.remove('show');
+                document.getElementById('resultText').innerText = data.polished_text || data.error || '润色失败';
+                document.getElementById('result').classList.add('show');
+                
+            } catch (error) {
+                document.getElementById('loading').classList.remove('show');
+                alert('润色失败: ' + error.message);
+            }
+        }
+        
+        // 复制结果
+        function copyResult() {
+            const resultText = document.getElementById('resultText').innerText;
+            navigator.clipboard.writeText(resultText).then(() => {
+                alert('已复制到剪贴板');
+            });
+        }
+    </script>
+</body>
+</html>

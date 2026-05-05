@@ -1,0 +1,69 @@
+{
+  "version": 2,
+  "categories": [
+    {
+      "id": "cat_1",
+      "name": "Typeless AI",
+      "shortcuts": [
+        {
+          "id": "shortcut_1",
+          "name": "🎤 语音润色",
+          "description": "语音输入并润色文本",
+          "iconName": "ic_mic",
+          "type": "GET",
+          "url": "https://tvrlj2q0rc0vknpr.public.blob.vercel-storage.com/polish",
+          "method": "POST",
+          "body": "{\"text\": \"{?}\"}",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "timeout": 30,
+          "retryPolicy": "EXponential",
+          "transformation": "response.body",
+          "confirmation": false,
+          "voice": {
+            "useVoice": true,
+            "voicePrompt": "请说话...",
+            "voiceLanguage": "zh-CN"
+          },
+          "responseHandling": {
+            "type": "TOAST",
+            "successMessage": "{response.body}",
+            "failureMessage": "润色失败: {error}"
+          }
+        },
+        {
+          "id": "shortcut_2",
+          "name": "✏️ 文本润色",
+          "description": "输入文本并润色",
+          "iconName": "ic_edit",
+          "type": "POST",
+          "url": "https://tvrlj2q0rc0vknpr.public.blob.vercel-storage.com/polish",
+          "method": "POST",
+          "body": "{\"text\": \"{?}\"}",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "timeout": 30,
+          "transformation": "response.body",
+          "confirmation": false,
+          "input": {
+            "useInput": true,
+            "inputHint": "输入要润色的文本..."
+          },
+          "responseHandling": {
+            "type": "TOAST",
+            "successMessage": "{response.body}",
+            "failureMessage": "润色失败: {error}"
+          }
+        }
+      ]
+    }
+  ]
+}
