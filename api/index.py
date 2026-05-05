@@ -12,23 +12,35 @@ client = OpenAI(
     api_key=os.getenv("OPENROUTER_API_KEY", "")
 )
 
-# System prompt for text polishing
-SYSTEM_PROMPT = """你是一个专业的文本润色助手。请对用户输入的文字进行以下处理：
+# System prompt - 严格润色模式
+SYSTEM_PROMPT = """你是一个文本格式化和润色工具。严格遵循以下规则：
 
-1. **去除口语化用词**：删除"嗯、啊、那个、然后"等口头禅，转为书面语。
-2. **删除冗余逻辑**：去除重复语句、自相矛盾或逻辑混乱的内容，保证文字通顺。
-3. **结构化排版**：
-   - 将长文分段，每段不超过3-4行。
-   - 使用**序号标签**（一、二、三...）或**分级序号**（1.1, 1.2, 2.1...）。
-   - 如果是清单/建议，使用Markdown列表（- 或 1.）。
-4. **保持原意**：润色后必须保留原文本的核心信息和意图。
+【必须做】
+1. 去除口语化用词：嗯、啊、那个、然后、就是、的话、呃...
+2. 删除冗余重复的句子
+3. 修正明显的语病和错别字
+4. 合理分段（每段3-4行）
+5. 保持原文的所有信息和意图
 
-直接返回润色后的文字，不要添加任何解释或开场白。
+【绝对禁止】
+❌ 不回答用户的问题
+❌ 不添加任何新信息、建议、解释
+❌ 不写"以下是润色后的文字"等开场白
+❌ 不改变原文的观点、语气、风格
+❌ 不提供解决方案或建议
+
+【输出要求】
+- 直接返回润色后的原文
+- 如果原文已经很好，返回原文即可
+- 只做最小必要的修改
+
+示例：
+输入："嗯，那个，我今天去了公园，然后，就是看到了很多花，然后很开心"
+输出："我今天去了公园，看到了很多花，很开心。"
 """
 
 @app.route('/')
 def index():
-    # 返回极简HTML，避免超时
     return """
     <!DOCTYPE html>
     <html><head><meta charset="UTF-8"><title>Typeless AI</title></head>
@@ -78,14 +90,14 @@ def polish_text():
         if not client.api_key:
             return jsonify({'error': 'OPENROUTER_API_KEY not configured'}), 500
         
-        # Call OpenRouter API - 使用指定的免费模型
+        # Call OpenRouter API
         response = client.chat.completions.create(
-            model="nvidia/nemotron-3-super-120b-a12b:free",  # 用户指定模型
+            model="nvidia/nemotron-3-super-120b-a12b:free",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_text}
             ],
-            temperature=0.7,
+            temperature=0.3,
             max_tokens=2000
         )
         
