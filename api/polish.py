@@ -1,6 +1,10 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 from openai import OpenAI
 import os
-import json
+
+app = Flask(__name__)
+CORS(app)
 
 # OpenRouter client
 client = OpenAI(
@@ -22,38 +26,19 @@ SYSTEM_PROMPT = """你是一个专业的文本润色助手。请对用户输入�
 直接返回润色后的文字，不要添加任何解释或开场白。
 """
 
-def handler(request):
+@app.route('/api/polish', methods=['POST', 'OPTIONS'])
+def polish_text():
     # Handle CORS preflight
-    if request.method == "OPTIONS":
-        return {
-            "statusCode": 200,
-            "headers": {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "POST, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type",
-            },
-            "body": ""
-        }
-    
-    # Only accept POST
-    if request.method != "POST":
-        return {
-            "statusCode": 405,
-            "body": json.dumps({"error": "Method not allowed"}),
-            "headers": {"Content-Type": "application/json"}
-        }
+    if request.method == 'OPTIONS':
+        return '', 200
     
     try:
         # Parse request
-        body = json.loads(request.body)
-        user_text = body.get("text", "")
+        data = request.get_json()
+        user_text = data.get('text', '')
         
         if not user_text:
-            return {
-                "statusCode": 400,
-                "body": json.dumps({"error": "Missing 'text' field"}),
-                "headers": {"Content-Type": "application/json"}
-            }
+            return jsonify({'error': 'Missing text field'}), 400
         
         # Call OpenRouter API
         response = client.chat.completions.create(
@@ -68,19 +53,11 @@ def handler(request):
         
         polished_text = response.choices[0].message.content
         
-        # Return polished text
-        return {
-            "statusCode": 200,
-            "body": json.dumps({"polished_text": polished_text}),
-            "headers": {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*"
-            }
-        }
+        return jsonify({'polished_text': polished_text})
         
     except Exception as e:
-        return {
-            "statusCode": 500,
-            "body": json.dumps({"error": str(e)}),
-            "headers": {"Content-Type": "application/json"}
-        }
+        return jsonify({'error': str(e)}), 500
+
+# Vercel requires the app to be named 'app'
+if __name__ == '__main__':
+    app.run(debug=True)
