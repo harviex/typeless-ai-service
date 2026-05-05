@@ -82,7 +82,7 @@ def polish_text():
         
         # Call OpenRouter API - 使用可用的免费模型
         response = client.chat.completions.create(
-            model="meta-llama/llama-3.1-8b-instruct:free",  # 修正模型名称
+            model="google/gemma-2-9b-it:free",  # 换一个肯定存在的免费模型
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_text}
