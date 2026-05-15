@@ -6,126 +6,110 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-# OpenRouter client
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=os.getenv("OPENROUTER_API_KEY", "")
 )
 
-# System prompt - 语音输入智能润色模式
-SYSTEM_PROMPT = """你是一个专业的中文语音输入润色工具。用户对文字说话（语音识别转文字），请进行以下处理：
+# Qwen3 Next 80B MoE: 中文理解能力强，免费且快（MoE 架构只有约 3B 激活参数）
+MODEL = "qwen/qwen3-next-80b-a3b-instruct:free"
 
-【标点符号】
-- 自动添加正确的标点符号（句号、逗号、问号、感叹号等）
-- 疑问语气（吗、呢、什么、怎么、哪里、为什么等）使用问号
-- 感叹语气使用感叹号
-- 一般陈述句使用句号
-- 长句中间添加逗号分隔
+SYSTEM_PROMPT = """你是语音识别文字转规范书面语的工具。输入是语音识别结果（无标点、口语化、可能有错字）。输出是经过处理后的规范书面中文。
 
-【分段与结构】
-- 按语义和话题合理分段，每段不超过3-4行
-- 不同话题/要点之间必须分段
-- 如果是多个并列要点，使用分点格式：一、二、三 或 1. 2. 3.
-- 如果是步骤/流程，使用序号：第一步、第二步 或 1. 2. 3.
-- 如果是建议/清单，使用短横线列表：- xxx
+你的处理规则，严格按以下顺序执行：
 
-【文字润色】
-- 去除口语化用词：嗯、啊、那个、然后、就是、的话、呃、哦、呢（句末语气词除外）
-- 删除重复、冗余、自相矛盾的句子
-- 修正明显的语病和错别字
-- 保持原文的核心信息、意图和语气
+第一步：加标点
+- 每句结尾必须有句号"。"、问号"？"或感叹号"！"
+- 陈述句用句号。疑问语气（含"吗/呢/什么/怎么/哪里/为什么/是不是/有没有"等）用问号。感叹语气用感叹号。
+- 句子中间适当位置加逗号"，"分隔
+- 并列词组之间用顿号"、"
 
-【输出要求】
-- 直接返回润色后的原文，不要任何开场白或解释
-- 如果原文已经很规范，返回原文即可
-- 不要添加原文中没有的新信息、建议或观点
-- 不要改变原文的观点和立场
+第二步：分段
+- 如果内容涉及多个话题/要点/步骤，必须分段
+- 每段1~4行，不同话题之间空一行
+- 并列要点用"一、二、三、"编号
+- 步骤流程用"第一步、第二步、"编号
+- 建议清单用短横线列表"- xxx"
 
-示例1（口语转书面）：
-输入："嗯，那个，我今天去了公园，然后，就是看到了很多花，然后很开心"
-输出："我今天去了公园，看到了很多花，很开心。"
+第三步：去口语
+- 删除所有语气词：嗯、呃、啊、哦、哎、嘛、哇、唉、哼、呵、嘿嘿、嘻嘻
+- 删除填充词：那个、嗯...、就是、然后（除非表示时间顺序）、的话、哦对了、对了
+- 删除重复的词句
 
-示例2（自动标点+分段）：
-输入："首先我们要注意安全问题然后是关于预算的问题我觉得应该增加十万还有人员的安排需要调整一下"
-输出：
-"首先，我们要注意安全问题。
+第四步：修正
+- 修正明显的错别字
+- 修正语病和不通顺的地方
+- 转为规范书面语表达
 
-其次，关于预算的问题，我觉得应该增加十万。
+约束条件：
+- 不改变原文的核心意思、观点、态度
+- 不添加原文中没有的新信息
+- 如果原文已经规范，原样返回即可
+- 直接返回处理结果，不要任何解释或开场白
 
-最后，人员的安排需要调整一下。"
+示例输入1：今天天气不错我们去公园散步吧你觉得呢
+示例输出1：今天天气不错，我们去公园散步吧？你觉得呢？
 
-示例3（疑问句自动加问号）：
-输入："你觉得这个方案怎么样我们是不是应该再讨论一下"
-输出："你觉得这个方案怎么样？我们是不是应该再讨论一下？"
+示例输入2：今天我们要讨论三个问题第一个是关于预算的问题我觉得应该增加十万第二个是关于人员安排的问题需要调整一下第三个是关于时间安排的问题我想把会议推迟到下周你们觉得怎么样嗯啊那个
+示例输出2：
+今天我们要讨论三个问题。
+
+一、关于预算问题，我觉得应该增加十万。
+
+二、关于人员安排问题，需要调整一下。
+
+三、关于时间安排问题，我想把会议推迟到下周。你们觉得怎么样？
+
+示例输入3：我觉得这个方案还是有一些问题的首先就是成本太高了然后就是时间上来不及嗯你觉得呢我们是不是应该再讨论一下
+示例输出3：
+我觉得这个方案还是有一些问题的。
+
+首先，成本太高。其次，时间上来不及。你觉得呢？我们是不是应该再讨论一下？
 """
 
 @app.route('/')
 def index():
-    return """
+    return f"""
     <!DOCTYPE html>
     <html><head><meta charset="UTF-8"><title>Typeless AI</title></head>
     <body style="font-family:sans-serif;max-width:600px;margin:50px auto;padding:20px;">
-        <h1>✨ Typeless AI Service</h1>
-        <p>文本润色API | POST /api/polish</p>
-        <hr>
-        <h3>测试</h3>
-        <form onsubmit="testAPI(); return false;">
-            <textarea id="input" style="width:100%;height:80px;" placeholder="输入文字..."></textarea><br>
-            <button type="submit">润色</button>
-        </form>
-        <pre id="output" style="background:#f5f5f5;padding:10px;margin-top:10px;"></pre>
-        <script>
-        async function testAPI() {
-            const text = document.getElementById('input').value;
-            const res = await fetch('/api/polish', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({text})
-            });
-            const data = await res.json();
-            document.getElementById('output').innerText = data.polished_text || data.error;
-        }
-        </script>
+        <h1>Typeless AI Service</h1>
+        <p>Model: {MODEL}</p>
+        <p>POST /api/polish</p>
     </body></html>
     """, 200, {'Content-Type': 'text/html; charset=utf-8'}
 
 @app.route('/api/polish', methods=['POST', 'OPTIONS'])
 def polish_text():
-    # Handle CORS preflight
     if request.method == 'OPTIONS':
         return '', 200
-    
     try:
-        # Parse request
         data = request.get_json()
         if not data:
             return jsonify({'error': 'Invalid JSON'}), 400
-            
         user_text = data.get('text', '')
-        
         if not user_text:
             return jsonify({'error': 'Missing text field'}), 400
-        
-        # Validate API key
         if not client.api_key:
-            return jsonify({'error': 'OPENROUTER_API_KEY not configured'}), 500
-        
-        # Call OpenRouter API
+            return jsonify({'error': 'API key not configured'}), 500
         response = client.chat.completions.create(
-            model="nvidia/nemotron-3-super-120b-a12b:free",
+            model=MODEL,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_text}
             ],
-            temperature=0.3,
+            temperature=0.1,
             max_tokens=2000
         )
-        
-        polished_text = response.choices[0].message.content
-        return jsonify({'polished_text': polished_text})
-        
+        result = response.choices[0].message.content or ""
+        # Strip any markdown code fences the model might add
+        result = result.strip()
+        if result.startswith("```"):
+            lines = result.split("\n")
+            lines = [l for l in lines if not l.strip().startswith("```")]
+            result = "\n".join(lines).strip()
+        return jsonify({'polished_text': result})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# For Vercel serverless deployment
 app_name = app
