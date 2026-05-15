@@ -1,4 +1,4 @@
-from openai import OpenAI
+from openai import OpenAI, APIStatusError
 import os
 import json
 from http.server import BaseHTTPRequestHandler
@@ -121,7 +121,7 @@ class handler(BaseHTTPRequestHandler):
 
             # Call OpenRouter API
             response = client.chat.completions.create(
-                model="qwen/qwen3-next-80b-a3b-instruct:free",
+                model="deepseek/deepseek-v4-flash:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_text}
@@ -133,6 +133,11 @@ class handler(BaseHTTPRequestHandler):
             polished_text = response.choices[0].message.content
             self._send_json({'polished_text': polished_text})
 
+        except APIStatusError as e:
+            if e.status_code == 402:
+                self._send_json({'error': 'API额度已用尽(402)，请在OpenRouter充值'}, 402)
+            else:
+                self._send_json({'error': f'API错误: {str(e)}'}, e.status_code)
         except Exception as e:
             self._send_json({'error': str(e)}, 500)
 

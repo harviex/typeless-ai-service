@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from openai import OpenAI
+from openai import OpenAI, APIStatusError
 import os
 
 app = Flask(__name__)
@@ -11,8 +11,8 @@ client = OpenAI(
     api_key=os.getenv("OPENROUTER_API_KEY", "")
 )
 
-# Qwen3 Next 80B MoE: 中文理解能力强，免费且快（MoE 架构只有约 3B 激活参数）
-MODEL = "qwen/qwen3-next-80b-a3b-instruct:free"
+# DeepSeek V4 Flash: 中文能力强，响应快，免费
+MODEL = "deepseek/deepseek-v4-flash:free"
 
 SYSTEM_PROMPT = """你是语音识别文字转规范书面语的工具。输入是语音识别结果（无标点、口语化、可能有错字）。输出是经过处理后的规范书面中文。
 
@@ -109,6 +109,10 @@ def polish_text():
             lines = [l for l in lines if not l.strip().startswith("```")]
             result = "\n".join(lines).strip()
         return jsonify({'polished_text': result})
+    except openai.APIStatusError as e:
+        if e.status_code == 402:
+            return jsonify({'error': 'API 额度已用尽 (402 USD spend limit exceeded)，请在 OpenRouter 充值或等待额度重置'}), 402
+        return jsonify({'error': f'API 错误: {str(e)}'}), e.status_code
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
