@@ -9,17 +9,57 @@ client = OpenAI(
     api_key=os.getenv("OPENROUTER_API_KEY", "")
 )
 
-SYSTEM_PROMPT = """你是一个专业的文本润色助手。请对用户输入的文字进行以下处理：
+SYSTEM_PROMPT = """你是语音识别文字转规范书面语的工具。输入是语音识别结果（无标点、口语化、可能有错字）。输出是经过处理后的规范书面中文。
 
-1. **去除口语化用词**：删除"嗯、啊、那个、然后"等口头禅，转为书面语。
-2. **删除冗余逻辑**：去除重复语句、自相矛盾或逻辑混乱的内容，保证文字通顺。
-3. **结构化排版**：
-   - 将长文分段，每段不超过3-4行。
-   - 使用**序号标签**（一、二、三...）或**分级序号**（1.1, 1.2, 2.1...）。
-   - 如果是清单/建议，使用Markdown列表（- 或 1.）。
-4. **保持原意**：润色后必须保留原文本的核心信息和意图。
+你的处理规则，严格按以下顺序执行：
 
-直接返回润色后的文字，不要添加任何解释或开场白。
+第一步：加标点
+- 每句结尾必须有句号"。"、问号"？"或感叹号"！"
+- 陈述句用句号。疑问语气（含"吗/呢/什么/怎么/哪里/为什么/是不是/有没有"等）用问号。感叹语气用感叹号。
+- 句子中间适当位置加逗号"，"分隔
+- 并列词组之间用顿号"、"
+
+第二步：分段
+- 如果内容涉及多个话题/要点/步骤，必须分段
+- 每段1~4行，不同话题之间空一行
+- 并列要点用"一、二、三、"编号
+- 步骤流程用"第一步、第二步、"编号
+- 建议清单用短横线列表"- xxx"
+
+第三步：去口语
+- 删除所有语气词：嗯、呃、啊、哦、哎、嘛、哇、唉、哼、呵、嘿嘿、嘻嘻
+- 删除填充词：那个、嗯...、就是、然后（除非表示时间顺序）、的话、哦对了、对了
+- 删除重复的词句
+
+第四步：修正
+- 修正明显的错别字
+- 修正语病和不通顺的地方
+- 转为规范书面语表达
+
+约束条件：
+- 不改变原文的核心意思、观点、态度
+- 不添加原文中没有的新信息
+- 如果原文已经规范，原样返回即可
+- 直接返回处理结果，不要任何解释或开场白
+
+示例输入1：今天天气不错我们去公园散步吧你觉得呢
+示例输出1：今天天气不错，我们去公园散步吧？你觉得呢？
+
+示例输入2：今天我们要讨论三个问题第一个是关于预算的问题我觉得应该增加十万第二个是关于人员安排的问题需要调整一下第三个是关于时间安排的问题我想把会议推迟到下周你们觉得怎么样嗯啊那个
+示例输出2：
+今天我们要讨论三个问题。
+
+一、关于预算问题，我觉得应该增加十万。
+
+二、关于人员安排问题，需要调整一下。
+
+三、关于时间安排问题，我想把会议推迟到下周。你们觉得怎么样？
+
+示例输入3：我觉得这个方案还是有一些问题的首先就是成本太高了然后就是时间上来不及嗯你觉得呢我们是不是应该再讨论一下
+示例输出3：
+我觉得这个方案还是有一些问题的。
+
+首先，成本太高。其次，时间上来不及。你觉得呢？我们是不是应该再讨论一下？
 """
 
 class handler(BaseHTTPRequestHandler):
@@ -28,7 +68,7 @@ class handler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-Type', 'text/html; charset=utf-8')
         self.end_headers()
-        
+
         html = """<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -42,70 +82,60 @@ class handler(BaseHTTPRequestHandler):
     </style>
 </head>
 <body>
-    <h1>✨ Typeless AI Service</h1>
-    <p>文本润色API服务，基于OpenRouter免费模型。</p>
-    <h2>使用方法</h2>
-    <pre>curl -X POST https://typeless-ai-service.vercel.app/api/polish \\
-  -H "Content-Type: application/json" \\
-  -d '{"text": "嗯，那个，我想去吃饭"}'</pre>
-    <h2>功能</h2>
-    <ul>
-        <li>去除口语化用词</li>
-        <li>删除冗余逻辑</li>
-        <li>结构化排版</li>
-        <li>保持原意</li>
-    </ul>
-</body>
-</html>"""
+    <h1>Typeless AI Service</h1>
+    <p>Model: qwen/qwen3-next-80b-a3b-instruct:free</p>
+    <p>POST /api/polish</p>
+</body></html>
+"""
         self.wfile.write(html.encode('utf-8'))
-    
+
     def do_OPTIONS(self):
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         self.end_headers()
-    
+
     def do_POST(self):
         # Only handle /api/polish
         if self.path != '/api/polish':
             self._send_json({'error': 'Not found'}, 404)
             return
-        
+
         # Read request body
         content_length = int(self.headers.get('Content-Length', 0))
         body = self.rfile.read(content_length)
-        
+
         try:
             data = json.loads(body)
             user_text = data.get('text', '')
-            
+
             if not user_text:
                 self._send_json({'error': 'Missing text field'}, 400)
                 return
-            
+
             # Validate API key
             if not client.api_key:
                 self._send_json({'error': 'OPENROUTER_API_KEY not configured'}, 500)
                 return
-            
+
             # Call OpenRouter API
             response = client.chat.completions.create(
-                model="meta-llama/llama-3.3-8b-instruct:free",
+                model="qwen/qwen3-next-80b-a3b-instruct:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_text}
                 ],
-                temperature=0.7,
+                temperature=0.1,
                 max_tokens=2000
             )
-            
+
             polished_text = response.choices[0].message.content
             self._send_json({'polished_text': polished_text})
-            
+
         except Exception as e:
             self._send_json({'error': str(e)}, 500)
-    
+
     def _send_json(self, data, status=200):
         self.send_response(status)
         self.send_header('Content-Type', 'application/json')
