@@ -83,7 +83,7 @@ class handler(BaseHTTPRequestHandler):
 </head>
 <body>
     <h1>Typeless AI Service</h1>
-    <p>Model: qwen/qwen3-next-80b-a3b-instruct:free</p>
+    <p>Model: deepseek/deepseek-v4-flash:free</p>
     <p>POST /api/polish</p>
 </body></html>
 """
