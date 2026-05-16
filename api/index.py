@@ -13,7 +13,7 @@ client = OpenAI(
 )
 
 # DeepSeek V4 Flash: 中文能力强，响应快，免费
-MODEL = "deepseek/deepseek-v4-flash:free"
+MODEL = "minimax/minimax-m2.5:free"
 
 SYSTEM_PROMPT = """你是一个语音识别文字润色工具。
 

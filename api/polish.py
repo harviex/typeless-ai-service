@@ -2,11 +2,17 @@ from openai import OpenAI, APIStatusError
 import os
 import json
 from http.server import BaseHTTPRequestHandler
+import sys
 
 # OpenRouter client
+API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+if not API_KEY:
+    print("❌ 严重错误: OPENROUTER_API_KEY 环境变量未配置！", file=sys.stderr)
+    sys.exit(1)
+
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key=os.getenv("OPENROUTER_API_KEY", "")
+    api_key=API_KEY
 )
 
 SYSTEM_PROMPT = """你是一个语音识别文字润色工具。
@@ -55,7 +61,7 @@ class handler(BaseHTTPRequestHandler):
 </head>
 <body>
     <h1>Typeless AI Service</h1>
-    <p>Model: deepseek/deepseek-v4-flash:free</p>
+    <p>Model: minimax/minimax-m2.5:free</p>
     <p>POST /api/polish</p>
 </body></html>
 """
@@ -93,7 +99,7 @@ class handler(BaseHTTPRequestHandler):
 
             # Call OpenRouter API
             response = client.chat.completions.create(
-                model="deepseek/deepseek-v4-flash:free",
+                model="minimax/minimax-m2.5:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_text}
